@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Альбина Самородова](https://up.htmlacademy.ru/javascript/18/user/995183).
-* Наставник: `Неизвестно`.
+* Наставник: [Алексей Балесный](https://up.htmlacademy.ru/javascript/18/user/221665).
 
 ---
 
