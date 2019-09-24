@@ -4,8 +4,8 @@ var OFFER_TYPES = ['palace', 'flat', 'house', 'bungalo'];
 var OFFER_TIMES = ['12:00', '13:00', '14:00'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg',
-                    'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
-                    'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+  'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
+  'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
 var MIN_X_VALUE = 0;
