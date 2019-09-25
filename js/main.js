@@ -19,19 +19,23 @@ var getRandomNumber = function (min, max) {
 };
 
 var getRandomElement = function (elements) {
-  var randomValue = elements[getRandomNumber(0, elements.length)];
+  var randomValue = elements[getRandomNumber(0, elements.length - 1)];
   return randomValue;
 };
 
 var getRandomLengthArray = function (array) {
   var lastElement = getRandomNumber(1, array.length);
-  var randomArray = array.slice(0, lastElement);
-  return randomArray;
+  return array.slice(0, lastElement);
 };
 
 var adsList = [];
 var createAdsArray = function () {
   for (var i = 0; i < ADS_NUMBER; i++) {
+    var location = {
+      x: getRandomNumber(MIN_X_VALUE, MAX_X_VALUE),
+      y: getRandomNumber(MIN_Y_VALUE, MAX_Y_VALUE)
+    };
+
     var ad = {
       author: {
         avatar: 'img/avatars/user0' + (i + 1) + '.png'
@@ -49,10 +53,7 @@ var createAdsArray = function () {
         description: 'Лучшее предложение',
         photos: getRandomLengthArray(OFFER_PHOTOS),
       },
-      location: {
-        x: getRandomNumber(MIN_X_VALUE, MAX_X_VALUE),
-        y: getRandomNumber(MIN_Y_VALUE, MAX_Y_VALUE)
-      }
+      location: location
     };
     adsList.push(ad);
   }
