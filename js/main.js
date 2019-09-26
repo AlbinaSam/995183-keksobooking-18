@@ -41,7 +41,7 @@ var createAdsArray = function () {
         avatar: 'img/avatars/user0' + (i + 1) + '.png'
       },
       offer: {
-        title: 'Квартира',
+        title: 'Tokyo Hilton Hotel',
         address: location.x + ',' + ' ' + location.y,
         price: getRandomNumber(0, 10000),
         type: getRandomElement(OFFER_TYPES),
@@ -86,3 +86,75 @@ var fillFragment = function () {
 fillFragment();
 
 pinsList.appendChild(fragment);
+
+var mapContainer = document.querySelector('.map');
+var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
+
+var renderCard = function (adObject) {
+  var card = cardTemplate.cloneNode(true);
+
+  card.querySelector('.popup__title').textContent = adObject.offer.title;
+
+  card.querySelector('.popup__text--address').textContent = adObject.offer.address;
+
+  card.querySelector('.popup__text--price').textContent = adObject.offer.price + ' ₽/ночь';
+
+  /* выводим тип жилья */
+  var type = {
+    'flat': 'Квартира',
+    'bungalo': 'Бунгало',
+    'house': 'Дом',
+    'palace': 'Дворец'
+  };
+
+  card.querySelector('.popup__type').textContent = type[adObject.offer.type];
+
+  card.querySelector('.popup__text--capacity').textContent = adObject.offer.rooms + ' комнаты для ' + adObject.offer.guests + ' гостей.';
+
+  card.querySelector('.popup__text--time').textContent = 'Заезд после ' + adObject.offer.checkin + ', выезд до ' + adObject.offer.checkout + '.';
+
+
+  /* выводим удобства */
+  var features = adObject.offer.features;
+  var featuresList = card.querySelector('.popup__features');
+
+  if (features.length === 0) {
+    featuresList.remove();
+  } else {
+    featuresList.innerHTML = '';
+    for (var i = 0; i < features.length; i++) {
+      var featureElement = document.createElement('li');
+      featureElement.classList.add('popup__feature', 'popup__feature--' + features[i]);
+      featuresList.appendChild(featureElement);
+    }
+  }
+
+
+  card.querySelector('.popup__description').textContent = adObject.offer.description;
+
+  /* выводим фотографии */
+  var photos = adObject.offer.photos;
+  var imgList = card.querySelector('.popup__photos');
+
+  if (photos.length === 0) {
+    imgList.remove();
+  } else {
+    imgList.innerHTML = '';
+    for (var j = 0; j < photos.length; j++) {
+      var img = document.createElement('img');
+      img.src = photos[j];
+      img.classList.add('popup__photo');
+      img.width = 45;
+      img.height = 40;
+      img.alt = 'Фотография жилья';
+      imgList.appendChild(img);
+    }
+  }
+
+  card.querySelector('.popup__avatar').src = adObject.author.avatar;
+
+  return card;
+};
+
+var mapFilters = document.querySelector('.map__filters-container');
+mapContainer.insertBefore(renderCard(adsList[0]), mapFilters);
