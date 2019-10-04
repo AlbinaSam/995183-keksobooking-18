@@ -187,12 +187,6 @@ var renderCard = function (adObject) {
     closeCard();
   });
 
-  cardClose.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      closeCard();
-    }
-  });
-
   return card;
 };
 
