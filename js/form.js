@@ -1,20 +1,6 @@
 'use strict';
 (function () {
 
-  var capacityOptionTextContents = {
-    '1': ['для 1 гостя'],
-    '2': ['для 2 гостей', 'для 1 гостя'],
-    '3': ['для 3 гостей', 'для 2 гостей', 'для 1 гостя'],
-    '100': ['не для гостей']
-  };
-
-  var capacityOptionValues = {
-    'для 1 гостя': '1',
-    'для 2 гостей': '2',
-    'для 3 гостей': '3',
-    'не для гостей': '0',
-  };
-
   /* валидация комнат/гостей */
 
   var roomNumberSelect = document.querySelector('#room_number');
@@ -22,12 +8,12 @@
   capacitySelect.innerHTML = '<option value="1" selected>для 1 гостя</option>';
 
   var onRoomNumberSelectChange = function (evt) {
-    var capacityOptions = capacityOptionTextContents[evt.target.value];
+    var capacityOptions = window.consts.capacityOptionTextContents[evt.target.value];
     capacitySelect.innerHTML = '';
     for (var i = 0; i < capacityOptions.length; i++) {
       var capacityOption = document.createElement('option');
       capacityOption.textContent = capacityOptions[i];
-      capacityOption.value = capacityOptionValues[capacityOptions[i]];
+      capacityOption.value = window.consts.capacityOptionValues[capacityOptions[i]];
       capacitySelect.appendChild(capacityOption);
     }
   };

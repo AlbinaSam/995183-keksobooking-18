@@ -2,7 +2,6 @@
 
 (function () {
 
-  window.pinsList = document.querySelector('.map__pins');
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 
   var renderPin = function (object) {
@@ -15,16 +14,18 @@
     return pinElement;
   };
 
-  window.fragment = document.createDocumentFragment();
 
-  var fillFragment = function () {
-    for (var i = 0; i < window.adsList.length; i++) {
-      var pin = renderPin(window.adsList[i]);
+  window.fillFragment = function (adsArray) {
+
+    var fragment = document.createDocumentFragment();
+
+    for (var i = 0; i < adsArray.length; i++) {
+      var pin = renderPin(adsArray[i]);
       pin.dataset.index = [i];
-      window.fragment.appendChild(pin);
+      fragment.appendChild(pin);
     }
-  };
 
-  fillFragment();
+    return fragment;
+  };
 
 })();

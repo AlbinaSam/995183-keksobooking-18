@@ -61,6 +61,11 @@
 
     var cardClose = card.querySelector('.popup__close');
 
+    window.closeCard = function () {
+      card.remove();
+      document.removeEventListener('keydown', window.onEscKeydown);
+    };
+
     cardClose.addEventListener('click', function () {
       window.closeCard();
     });
