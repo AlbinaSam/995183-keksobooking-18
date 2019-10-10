@@ -7,6 +7,8 @@
   var filterInputs = document.querySelectorAll('.map__filters input');
   var filterSelects = document.querySelectorAll('.map__filters select');
 
+  var newCoords = {};
+
 
   var setDisabledAttr = function (fieldsCollection) {
     for (var i = 0; i < fieldsCollection.length; i++) {
@@ -36,8 +38,8 @@
 
   addressField.value = (window.consts.STARTING_PIN_X + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (window.consts.STARTING_PIN_Y + window.consts.MAIN_PIN_HEIGTH / 2);
 
-  var fillAddressField = function () {
-    addressField.value = (window.consts.STARTING_PIN_X + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (window.consts.STARTING_PIN_Y + window.consts.MAIN_PIN_HEIGTH + window.consts.PIN_TIP_HEGHT);
+  var fillAddressField = function (x, y) {
+    addressField.value = (x + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (y + window.consts.MAIN_PIN_HEIGTH + window.consts.PIN_TIP_HEGHT);
   };
 
   var adsList = window.createAdsArray();
@@ -49,13 +51,87 @@
     removeDisableAtrr(adSelects);
     removeDisableAtrr(filterInputs);
     removeDisableAtrr(filterSelects);
-    fillAddressField();
+    fillAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y);
     pinsList.appendChild(window.fillFragment(adsList));
   };
 
 
-  mainPin.addEventListener('mousedown', function () {
+  mainPin.addEventListener('mousedown', function (evt) {
     activatePage();
+
+    /* перемещение */
+    evt.preventDefault();
+
+    var startCoords = {
+      x: evt.clientX,
+      y: evt.clientY
+    };
+
+    var dragged = true;
+
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      var shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY
+      };
+
+      if (mainPin.offsetLeft - shift.x <= window.consts.MIN_X_VALUE - window.consts.MAIN_PIN_WIDTH / 2) {
+        var offsetX = window.consts.MIN_X_VALUE - window.consts.MAIN_PIN_WIDTH / 2;
+      } else
+      if (mainPin.offsetLeft - shift.x >= window.consts.MAX_X_VALUE - window.consts.MAIN_PIN_WIDTH / 2) {
+        offsetX = window.consts.MAX_X_VALUE - window.consts.MAIN_PIN_WIDTH / 2;
+      } else {
+        offsetX = mainPin.offsetLeft - shift.x;
+      }
+
+      if (mainPin.offsetTop - shift.y <= (window.consts.MIN_Y_VALUE - window.consts.MAIN_PIN_HEIGTH - window.consts.PIN_TIP_HEGHT)) {
+        var offsetY = window.consts.MIN_Y_VALUE - window.consts.MAIN_PIN_HEIGTH - window.consts.PIN_TIP_HEGHT;
+      } else if (mainPin.offsetTop - shift.y >= window.consts.MAX_Y_VALUE) {
+        offsetY = window.consts.MAX_Y_VALUE;
+      } else {
+        offsetY = mainPin.offsetTop - shift.y;
+      }
+
+      newCoords = {
+        x: offsetX,
+        y: offsetY
+      };
+
+      mainPin.style.top = newCoords.y + 'px';
+      mainPin.style.left = newCoords.x + 'px';
+
+      fillAddressField(newCoords.x, newCoords.y);
+    };
+
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+      dragged = false;
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+
+      if (!dragged) {
+
+        var onPinMouseDown = function (pinEvt) {
+          pinEvt.preventDefault();
+          fillAddressField(newCoords.x, newCoords.y);
+        };
+
+        mainPin.addEventListener('mousedown', onPinMouseDown);
+      }
+    };
+
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+
   });
 
   mainPin.addEventListener('keydown', function (evt) {
@@ -63,6 +139,7 @@
       activatePage();
     }
   });
+
 
   /* показ/скрытие карточек объявлений */
   var mapContainer = document.querySelector('.map');
