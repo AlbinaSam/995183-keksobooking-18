@@ -47,7 +47,7 @@
 
     PIN_HEIGHT: 70,
 
-    PIN_TIP_HEGHT: 22,
+    PIN_TIP_HEIGHT: 22,
 
     STARTING_PIN_X: 570,
 

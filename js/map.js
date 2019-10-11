@@ -7,8 +7,10 @@
   var filterInputs = document.querySelectorAll('.map__filters input');
   var filterSelects = document.querySelectorAll('.map__filters select');
 
-  var newCoords = {};
-
+  var newCoords = {
+    x: window.consts.STARTING_PIN_X,
+    y: window.consts.STARTING_PIN_Y
+  };
 
   var setDisabledAttr = function (fieldsCollection) {
     for (var i = 0; i < fieldsCollection.length; i++) {
@@ -39,7 +41,7 @@
   addressField.value = (window.consts.STARTING_PIN_X + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (window.consts.STARTING_PIN_Y + window.consts.MAIN_PIN_HEIGTH / 2);
 
   var fillAddressField = function (x, y) {
-    addressField.value = (x + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (y + window.consts.MAIN_PIN_HEIGTH + window.consts.PIN_TIP_HEGHT);
+    addressField.value = (x + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (y + window.consts.MAIN_PIN_HEIGTH + window.consts.PIN_TIP_HEIGHT);
   };
 
   var adsList = window.createAdsArray();
@@ -51,13 +53,18 @@
     removeDisableAtrr(adSelects);
     removeDisableAtrr(filterInputs);
     removeDisableAtrr(filterSelects);
-    fillAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y);
     pinsList.appendChild(window.fillFragment(adsList));
+    fillAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y); /* это лишнее теперь? */
+    active = true;
   };
 
+  var active = false;
 
   mainPin.addEventListener('mousedown', function (evt) {
-    activatePage();
+
+    if (!active) {
+      activatePage();
+    }
 
     /* перемещение */
     evt.preventDefault();
@@ -66,8 +73,6 @@
       x: evt.clientX,
       y: evt.clientY
     };
-
-    var dragged = true;
 
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
@@ -91,10 +96,10 @@
         offsetX = mainPin.offsetLeft - shift.x;
       }
 
-      if (mainPin.offsetTop - shift.y <= (window.consts.MIN_Y_VALUE - window.consts.MAIN_PIN_HEIGTH - window.consts.PIN_TIP_HEGHT)) {
-        var offsetY = window.consts.MIN_Y_VALUE - window.consts.MAIN_PIN_HEIGTH - window.consts.PIN_TIP_HEGHT;
-      } else if (mainPin.offsetTop - shift.y >= window.consts.MAX_Y_VALUE) {
-        offsetY = window.consts.MAX_Y_VALUE;
+      if (mainPin.offsetTop - shift.y <= (window.consts.MIN_Y_VALUE - window.consts.MAIN_PIN_HEIGTH - window.consts.PIN_TIP_HEIGHT)) {
+        var offsetY = window.consts.MIN_Y_VALUE - window.consts.MAIN_PIN_HEIGTH - window.consts.PIN_TIP_HEIGHT;
+      } else if (mainPin.offsetTop - shift.y >= (window.consts.MAX_Y_VALUE - window.consts.MAIN_PIN_HEIGTH - window.consts.PIN_TIP_HEIGHT)) {
+        offsetY = window.consts.MAX_Y_VALUE - window.consts.MAIN_PIN_HEIGTH - window.consts.PIN_TIP_HEIGHT;
       } else {
         offsetY = mainPin.offsetTop - shift.y;
       }
@@ -112,22 +117,13 @@
 
     var onMouseUp = function (upEvt) {
       upEvt.preventDefault();
-      dragged = false;
 
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
 
-      if (!dragged) {
+      fillAddressField(newCoords.x, newCoords.y);
 
-        var onPinMouseDown = function (pinEvt) {
-          pinEvt.preventDefault();
-          fillAddressField(newCoords.x, newCoords.y);
-        };
-
-        mainPin.addEventListener('mousedown', onPinMouseDown);
-      }
     };
-
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
@@ -148,7 +144,7 @@
 
   window.onEscKeydown = function (evt) {
     if (evt.keyCode === window.consts.ESC_KEYCODE) {
-      window.closeCard();
+      window.card.close();
     }
   };
 
@@ -162,9 +158,9 @@
     var pinIndex = clickedPin.dataset.index;
 
     if (card) {
-      window.closeCard();
+      window.card.close();
     }
-    card = window.renderCard(adsList[pinIndex]);
+    card = window.card.render(adsList[pinIndex]);
     mapContainer.insertBefore(card, mapFilters);
     document.addEventListener('keydown', window.onEscKeydown);
   };
