@@ -16,9 +16,9 @@
     return array.slice(0, lastElement);
   };
 
-  window.adsList = []; /* ????? */
 
-  var createAdsArray = function () {
+  window.createAdsArray = function () {
+    var adsList = [];
 
     for (var i = 0; i < window.consts.ADS_NUMBER; i++) {
       var location = {
@@ -45,10 +45,11 @@
         },
         location: location
       };
-      window.adsList.push(ad);
-    }
-  };
 
-  createAdsArray();
+      adsList.push(ad);
+    }
+
+    return adsList;
+  };
 
 })();
