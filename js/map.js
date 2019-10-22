@@ -44,18 +44,19 @@
     addressField.value = (x + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (y + window.consts.MAIN_PIN_HEIGTH + window.consts.PIN_TIP_HEIGHT);
   };
 
+  var adverts;
 
-  var successHandler = function (adsArray) {
+  var successHandler = function (ads) {
 
-    window.adsList = adsArray;
+    adverts = adsArray;
 
     var fragment = document.createDocumentFragment();
 
-    for (var i = 0; i < adsArray.length; i++) {
+    for (var i = 0; i < ads.length; i++) {
 
-      if (adsArray[i].offer) {
+      if (ads[i].offer) {
 
-        var pin = window.renderPin(adsArray[i]);
+        var pin = window.renderPin(ads[i]);
         pin.dataset.index = [i];
         fragment.appendChild(pin);
       }
@@ -65,17 +66,34 @@
   };
 
 
+
   var errorHandler = function (errorMessage) {
     var errorTemplate = document.querySelector('#error').content.querySelector('.error');
     var error = errorTemplate.cloneNode(true);
     error.querySelector('.error__message').textContent = errorMessage;
     document.querySelector('main').appendChild(error);
 
+
+  var onErrorMapClick = function() {
+    error.remove();
+    window.load(successHandler, errorHandler);
+    document.removeEventListener('click', onErrorMapClick);
+    errorButton.removeEventListener('click', onErrorMapClick);
+  };
+
+    var onErrorEscKeydown = function(evt) {
+      if(evt.keyCode === window.consts.ESC_KEYCODE) {
+        error.remove();
+        window.load(successHandler, errorHandler);
+        document.removeEventListener('keydown', onErrorEscKeydown);
+      }
+    };
+
     var errorButton = document.querySelector('.error__button');
-    errorButton.addEventListener('click', function () {
-      error.remove();
-      window.load(successHandler, errorHandler);
-    });
+
+    errorButton.addEventListener('click', onErrorMapClick);
+    document.addEventListener('click', onErrorMapClick);
+    document.addEventListener('keydown', onErrorEscKeydown);
   };
 
   var activatePage = function () {
@@ -91,6 +109,21 @@
   };
 
   var active = false;
+
+
+  /* отправка формы */
+  var form = document.querySelector('.ad-form');
+
+  var successSendHandler = function () {
+    form.reset();
+    window.card.close;
+  };
+
+  form.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.send(new FormData(form), successSendHandler, errorHandler);
+  });
+
 
   mainPin.addEventListener('mousedown', function (evt) {
 
@@ -176,7 +209,7 @@
 
   window.onEscKeydown = function (evt) {
     if (evt.keyCode === window.consts.ESC_KEYCODE) {
-      window.card.close();
+      window.card.close(card);
     }
   };
 
@@ -190,9 +223,9 @@
     var pinIndex = clickedPin.dataset.index;
 
     if (card) {
-      window.card.close();
+      window.card.close(card);
     }
-    card = window.card.render(window.adsList[pinIndex]);
+    card = window.card.render(adverts[pinIndex]);
     mapContainer.insertBefore(card, mapFilters);
     document.addEventListener('keydown', window.onEscKeydown);
   };

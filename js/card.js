@@ -1,10 +1,12 @@
 'use strict';
 (function () {
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
-  var card = cardTemplate.cloneNode(true);
+
 
   window.card = {
     render: function (adObject) {
+
+      var card = cardTemplate.cloneNode(true);
 
       card.querySelector('.popup__title').textContent = adObject.offer.title;
 
@@ -39,7 +41,7 @@
       /* выводим описание */
 
       var description = card.querySelector('.popup__description');
-      if (description) {
+      if (adObject.offer.description) {
         description.textContent = adObject.offer.description;
       } else {
         description.remove();
@@ -71,13 +73,13 @@
       var cardClose = card.querySelector('.popup__close');
 
       cardClose.addEventListener('click', function () {
-        window.card.close();
+        window.card.close(card);
       });
 
       return card;
     },
 
-    close: function () {
+    close: function (card) {
       card.remove();
       document.removeEventListener('keydown', window.onEscKeydown);
     }

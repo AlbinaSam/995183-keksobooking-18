@@ -53,4 +53,6 @@
 
   typeSelect.addEventListener('change', onTypeSelectChange);
 
+
+
 })();
