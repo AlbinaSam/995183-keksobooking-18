@@ -35,7 +35,15 @@
         }
       }
 
-      card.querySelector('.popup__description').textContent = adObject.offer.description;
+
+      /* выводим описание */
+
+      var description = card.querySelector('.popup__description');
+      if (description) {
+        description.textContent = adObject.offer.description;
+      } else {
+        description.remove();
+      }
 
 
       /* выводим фотографии */
@@ -61,11 +69,6 @@
       card.querySelector('.popup__avatar').src = adObject.author.avatar;
 
       var cardClose = card.querySelector('.popup__close');
-
-      window.card.close = function () {
-        card.remove();
-        document.removeEventListener('keydown', window.onEscKeydown);
-      };
 
       cardClose.addEventListener('click', function () {
         window.card.close();
