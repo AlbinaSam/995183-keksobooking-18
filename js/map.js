@@ -44,7 +44,39 @@
     addressField.value = (x + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (y + window.consts.MAIN_PIN_HEIGTH + window.consts.PIN_TIP_HEIGHT);
   };
 
-  var adsList = window.createAdsArray();
+
+  var successHandler = function (adsArray) {
+
+    window.adsList = adsArray;
+
+    var fragment = document.createDocumentFragment();
+
+    for (var i = 0; i < adsArray.length; i++) {
+
+      if (adsArray[i].offer) {
+
+        var pin = window.renderPin(adsArray[i]);
+        pin.dataset.index = [i];
+        fragment.appendChild(pin);
+      }
+    }
+    pinsList.appendChild(fragment);
+
+  };
+
+
+  var errorHandler = function (errorMessage) {
+    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+    var error = errorTemplate.cloneNode(true);
+    error.querySelector('.error__message').textContent = errorMessage;
+    document.querySelector('main').appendChild(error);
+
+    var errorButton = document.querySelector('.error__button');
+    errorButton.addEventListener('click', function () {
+      error.remove();
+      window.load(successHandler, errorHandler);
+    });
+  };
 
   var activatePage = function () {
     mapContainer.classList.remove('map--faded');
@@ -53,8 +85,8 @@
     removeDisableAtrr(adSelects);
     removeDisableAtrr(filterInputs);
     removeDisableAtrr(filterSelects);
-    pinsList.appendChild(window.fillFragment(adsList));
-    fillAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y); /* это лишнее теперь? */
+    window.load(successHandler, errorHandler);
+    fillAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y);
     active = true;
   };
 
@@ -160,7 +192,7 @@
     if (card) {
       window.card.close();
     }
-    card = window.card.render(adsList[pinIndex]);
+    card = window.card.render(window.adsList[pinIndex]);
     mapContainer.insertBefore(card, mapFilters);
     document.addEventListener('keydown', window.onEscKeydown);
   };
