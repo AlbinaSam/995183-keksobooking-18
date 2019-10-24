@@ -46,54 +46,17 @@
 
   var adverts;
 
-  var successHandler = function (ads) {
-
-    adverts = adsArray;
-
+  var onSuccessDataLoad = function (ads) {
+    adverts = ads;
     var fragment = document.createDocumentFragment();
-
     for (var i = 0; i < ads.length; i++) {
-
       if (ads[i].offer) {
-
         var pin = window.renderPin(ads[i]);
         pin.dataset.index = [i];
         fragment.appendChild(pin);
       }
     }
     pinsList.appendChild(fragment);
-
-  };
-
-
-
-  var errorHandler = function (errorMessage) {
-    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-    var error = errorTemplate.cloneNode(true);
-    error.querySelector('.error__message').textContent = errorMessage;
-    document.querySelector('main').appendChild(error);
-
-
-  var onErrorMapClick = function() {
-    error.remove();
-    window.load(successHandler, errorHandler);
-    document.removeEventListener('click', onErrorMapClick);
-    errorButton.removeEventListener('click', onErrorMapClick);
-  };
-
-    var onErrorEscKeydown = function(evt) {
-      if(evt.keyCode === window.consts.ESC_KEYCODE) {
-        error.remove();
-        window.load(successHandler, errorHandler);
-        document.removeEventListener('keydown', onErrorEscKeydown);
-      }
-    };
-
-    var errorButton = document.querySelector('.error__button');
-
-    errorButton.addEventListener('click', onErrorMapClick);
-    document.addEventListener('click', onErrorMapClick);
-    document.addEventListener('keydown', onErrorEscKeydown);
   };
 
   var activatePage = function () {
@@ -103,30 +66,72 @@
     removeDisableAtrr(adSelects);
     removeDisableAtrr(filterInputs);
     removeDisableAtrr(filterSelects);
-    window.load(successHandler, errorHandler);
+    window.backend.load(onSuccessDataLoad, window.onError);
     fillAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y);
     active = true;
   };
 
   var active = false;
 
-
   /* отправка формы */
   var form = document.querySelector('.ad-form');
 
-  var successSendHandler = function () {
+  var onSuccessFormSend = function () {
     form.reset();
-    window.card.close;
+    if (card) {
+      window.card.close(card);
+    }
+
+    var pins = pinsList.querySelectorAll('.map__pin:not(.map__pin--main)');
+    for (var i = 0; i < pins.length; i++) {
+      pins[i].remove();
+    }
+
+    mainPin.style.left = window.consts.STARTING_PIN_X + 'px';
+    mainPin.style.top = window.consts.STARTING_PIN_Y + 'px';
+    mapContainer.classList.add('map--faded');
+    adForm.classList.add('ad-form--disabled');
+    setDisabledAttr(adInputs);
+    setDisabledAttr(adSelects);
+    setDisabledAttr(filterInputs);
+    setDisabledAttr(filterSelects);
+    addressField.value = (window.consts.STARTING_PIN_X + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (window.consts.STARTING_PIN_Y + window.consts.MAIN_PIN_HEIGTH / 2);
+    active = false;
+
+    /* success message */
+
+    var successTemplate = document.querySelector('#success').content.querySelector('.success');
+    var success = successTemplate.cloneNode(true);
+    document.querySelector('main').appendChild(success);
+
+    var successMessageClose = function () {
+      success.remove();
+      document.removeEventListener('keydown', onSuccessEscKeydown);
+      document.removeEventListener('click', onSuccessMapClick);
+    };
+
+    var onSuccessEscKeydown = function (evt) {
+      if (evt.keyCode === window.consts.ESC_KEYCODE) {
+        successMessageClose();
+      }
+    };
+
+    var onSuccessMapClick = function () {
+      successMessageClose();
+    };
+
+    document.addEventListener('keydown', onSuccessEscKeydown);
+    document.addEventListener('click', onSuccessMapClick);
   };
+
 
   form.addEventListener('submit', function (evt) {
     evt.preventDefault();
-    window.send(new FormData(form), successSendHandler, errorHandler);
+    window.backend.send(new FormData(form), onSuccessFormSend, window.onError);
   });
 
 
   mainPin.addEventListener('mousedown', function (evt) {
-
     if (!active) {
       activatePage();
     }
@@ -187,7 +192,6 @@
       document.removeEventListener('mouseup', onMouseUp);
 
       fillAddressField(newCoords.x, newCoords.y);
-
     };
 
     document.addEventListener('mousemove', onMouseMove);
