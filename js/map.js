@@ -1,16 +1,12 @@
 'use strict';
 (function () {
+
   /* добавляем атрибут disabled */
 
   var adInputs = document.querySelectorAll('.ad-form input');
   var adSelects = document.querySelectorAll('.ad-form select');
   var filterInputs = document.querySelectorAll('.map__filters input');
   var filterSelects = document.querySelectorAll('.map__filters select');
-
-  var newCoords = {
-    x: window.consts.STARTING_PIN_X,
-    y: window.consts.STARTING_PIN_Y
-  };
 
   var setDisabledAttr = function (fieldsCollection) {
     for (var i = 0; i < fieldsCollection.length; i++) {
@@ -45,37 +41,58 @@
   };
 
 
-  var successHandler = function (adsArray) {
+  /* фильтр */
 
-    window.adsList = adsArray;
+  var adverts;
 
+  var mapForm = document.querySelector('.map__filters');
+
+  var removePins = function () {
+    var pins = pinsList.querySelectorAll('.map__pin:not(.map__pin--main)');
+    for (var i = 0; i < pins.length; i++) {
+      pins[i].remove();
+    }
+  };
+
+  var renderCorrectQuantityOfAds = function (adsToShow) {
     var fragment = document.createDocumentFragment();
+    var correctQuantity = adsToShow.slice(0, 5);
 
-    for (var i = 0; i < adsArray.length; i++) {
+    for (var i = 0; i < correctQuantity.length; i++) {
 
-      if (adsArray[i].offer) {
+      if (correctQuantity[i].offer) {
 
-        var pin = window.renderPin(adsArray[i]);
+        var pin = window.renderPin(correctQuantity[i]);
         pin.dataset.index = [i];
         fragment.appendChild(pin);
       }
     }
     pinsList.appendChild(fragment);
-
   };
 
+  var onFormElementChange = function (evt) {
 
-  var errorHandler = function (errorMessage) {
-    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-    var error = errorTemplate.cloneNode(true);
-    error.querySelector('.error__message').textContent = errorMessage;
-    document.querySelector('main').appendChild(error);
+    var advertsToShow;
 
-    var errorButton = document.querySelector('.error__button');
-    errorButton.addEventListener('click', function () {
-      error.remove();
-      window.load(successHandler, errorHandler);
-    });
+    if (evt.target.value === 'any') {
+      advertsToShow = adverts;
+    } else
+
+    if (window.consts.OFFER_TYPES.includes(evt.target.value)) {
+      advertsToShow = adverts.filter(function (ad) {
+        return ad.offer.type === evt.target.value;
+      });
+    }
+
+    removePins();
+    renderCorrectQuantityOfAds(advertsToShow);
+  };
+
+  mapForm.addEventListener('change', onFormElementChange);
+
+  var onSuccessDataLoad = function (ads) {
+    adverts = ads;
+    renderCorrectQuantityOfAds(adverts);
   };
 
   var activatePage = function () {
@@ -85,14 +102,83 @@
     removeDisableAtrr(adSelects);
     removeDisableAtrr(filterInputs);
     removeDisableAtrr(filterSelects);
-    window.load(successHandler, errorHandler);
+    window.backend.load(onSuccessDataLoad, window.onError);
     fillAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y);
     active = true;
   };
 
   var active = false;
 
+  /* отправка формы */
+  var form = document.querySelector('.ad-form');
+
+  var resetForm = function () {
+    form.reset();
+    mapForm.reset();
+  };
+
+  var onSuccessFormSend = function () {
+    resetForm();
+
+    if (card) {
+      window.card.close(card);
+      card = null;
+    }
+
+    removePins();
+
+    mainPin.style.left = window.consts.STARTING_PIN_X + 'px';
+    mainPin.style.top = window.consts.STARTING_PIN_Y + 'px';
+    mapContainer.classList.add('map--faded');
+    adForm.classList.add('ad-form--disabled');
+    setDisabledAttr(adInputs);
+    setDisabledAttr(adSelects);
+    setDisabledAttr(filterInputs);
+    setDisabledAttr(filterSelects);
+    addressField.value = (window.consts.STARTING_PIN_X + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (window.consts.STARTING_PIN_Y + window.consts.MAIN_PIN_HEIGTH / 2);
+    active = false;
+
+    /* success message */
+
+    var successTemplate = document.querySelector('#success').content.querySelector('.success');
+    var success = successTemplate.cloneNode(true);
+    document.querySelector('main').appendChild(success);
+
+    var successMessageClose = function () {
+      success.remove();
+      document.removeEventListener('keydown', onSuccessEscKeydown);
+      document.removeEventListener('click', onSuccessMapClick);
+    };
+
+    var onSuccessEscKeydown = function (evt) {
+      if (evt.keyCode === window.consts.ESC_KEYCODE) {
+        successMessageClose();
+      }
+    };
+
+    var onSuccessMapClick = function () {
+      successMessageClose();
+    };
+
+    document.addEventListener('keydown', onSuccessEscKeydown);
+    document.addEventListener('click', onSuccessMapClick);
+  };
+
+
+  form.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.backend.send(new FormData(form), onSuccessFormSend, window.onError);
+  });
+
+
   mainPin.addEventListener('mousedown', function (evt) {
+
+    var dragged = false;
+
+    var newCoords = {
+      x: window.consts.STARTING_PIN_X,
+      y: window.consts.STARTING_PIN_Y
+    };
 
     if (!active) {
       activatePage();
@@ -108,6 +194,7 @@
 
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
+      dragged = true;
 
       var shift = {
         x: startCoords.x - moveEvt.clientX,
@@ -150,10 +237,12 @@
     var onMouseUp = function (upEvt) {
       upEvt.preventDefault();
 
+      if (dragged) {
+        fillAddressField(newCoords.x, newCoords.y);
+      }
+
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
-
-      fillAddressField(newCoords.x, newCoords.y);
 
     };
 
@@ -176,7 +265,7 @@
 
   window.onEscKeydown = function (evt) {
     if (evt.keyCode === window.consts.ESC_KEYCODE) {
-      window.card.close();
+      window.card.close(card);
     }
   };
 
@@ -190,9 +279,9 @@
     var pinIndex = clickedPin.dataset.index;
 
     if (card) {
-      window.card.close();
+      window.card.close(card);
     }
-    card = window.card.render(window.adsList[pinIndex]);
+    card = window.card.render(adverts[pinIndex]);
     mapContainer.insertBefore(card, mapFilters);
     document.addEventListener('keydown', window.onEscKeydown);
   };
