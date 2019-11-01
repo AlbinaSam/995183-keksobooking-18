@@ -71,7 +71,13 @@
 
     },
 
-    TIMEOUT: 10000
+    TIMEOUT: 10000,
+
+    URL_LOAD: 'https://js.dump.academy/keksobooking/data',
+
+    URL_SEND: 'https://js.dump.academy/keksobooking',
+
+    SUCCESS_CODE: 200
   };
 
 })();

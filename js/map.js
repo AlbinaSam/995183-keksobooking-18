@@ -1,16 +1,12 @@
 'use strict';
 (function () {
+
   /* добавляем атрибут disabled */
 
   var adInputs = document.querySelectorAll('.ad-form input');
   var adSelects = document.querySelectorAll('.ad-form select');
   var filterInputs = document.querySelectorAll('.map__filters input');
   var filterSelects = document.querySelectorAll('.map__filters select');
-
-  var newCoords = {
-    x: window.consts.STARTING_PIN_X,
-    y: window.consts.STARTING_PIN_Y
-  };
 
   var setDisabledAttr = function (fieldsCollection) {
     for (var i = 0; i < fieldsCollection.length; i++) {
@@ -44,19 +40,59 @@
     addressField.value = (x + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (y + window.consts.MAIN_PIN_HEIGTH + window.consts.PIN_TIP_HEIGHT);
   };
 
+
+  /* фильтр */
+
   var adverts;
 
-  var onSuccessDataLoad = function (ads) {
-    adverts = ads;
+  var mapForm = document.querySelector('.map__filters');
+
+  var removePins = function () {
+    var pins = pinsList.querySelectorAll('.map__pin:not(.map__pin--main)');
+    for (var i = 0; i < pins.length; i++) {
+      pins[i].remove();
+    }
+  };
+
+  var renderCorrectQuantityOfAds = function (adsToShow) {
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < ads.length; i++) {
-      if (ads[i].offer) {
-        var pin = window.renderPin(ads[i]);
+    var correctQuantity = adsToShow.slice(0, 5);
+
+    for (var i = 0; i < correctQuantity.length; i++) {
+
+      if (correctQuantity[i].offer) {
+
+        var pin = window.renderPin(correctQuantity[i]);
         pin.dataset.index = [i];
         fragment.appendChild(pin);
       }
     }
     pinsList.appendChild(fragment);
+  };
+
+  var onFormElementChange = function (evt) {
+
+    var advertsToShow;
+
+    if (evt.target.value === 'any') {
+      advertsToShow = adverts;
+    } else
+
+    if (window.consts.OFFER_TYPES.includes(evt.target.value)) {
+      advertsToShow = adverts.filter(function (ad) {
+        return ad.offer.type === evt.target.value;
+      });
+    }
+
+    removePins();
+    renderCorrectQuantityOfAds(advertsToShow);
+  };
+
+  mapForm.addEventListener('change', onFormElementChange);
+
+  var onSuccessDataLoad = function (ads) {
+    adverts = ads;
+    renderCorrectQuantityOfAds(adverts);
   };
 
   var activatePage = function () {
@@ -76,16 +112,20 @@
   /* отправка формы */
   var form = document.querySelector('.ad-form');
 
-  var onSuccessFormSend = function () {
+  var resetForm = function () {
     form.reset();
+    mapForm.reset();
+  };
+
+  var onSuccessFormSend = function () {
+    resetForm();
+
     if (card) {
       window.card.close(card);
+      card = null;
     }
 
-    var pins = pinsList.querySelectorAll('.map__pin:not(.map__pin--main)');
-    for (var i = 0; i < pins.length; i++) {
-      pins[i].remove();
-    }
+    removePins();
 
     mainPin.style.left = window.consts.STARTING_PIN_X + 'px';
     mainPin.style.top = window.consts.STARTING_PIN_Y + 'px';
@@ -132,6 +172,14 @@
 
 
   mainPin.addEventListener('mousedown', function (evt) {
+
+    var dragged = false;
+
+    var newCoords = {
+      x: window.consts.STARTING_PIN_X,
+      y: window.consts.STARTING_PIN_Y
+    };
+
     if (!active) {
       activatePage();
     }
@@ -146,6 +194,7 @@
 
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
+      dragged = true;
 
       var shift = {
         x: startCoords.x - moveEvt.clientX,
@@ -188,10 +237,13 @@
     var onMouseUp = function (upEvt) {
       upEvt.preventDefault();
 
+      if (dragged) {
+        fillAddressField(newCoords.x, newCoords.y);
+      }
+
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
 
-      fillAddressField(newCoords.x, newCoords.y);
     };
 
     document.addEventListener('mousemove', onMouseMove);
