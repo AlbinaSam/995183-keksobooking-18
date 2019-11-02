@@ -56,13 +56,13 @@
 
   var renderCorrectQuantityOfAds = function (adsToShow) {
     var fragment = document.createDocumentFragment();
-    var correctQuantity = adsToShow.slice(0, 5);
+    var correctQuantityOfAds = adsToShow.slice(0, window.consts.CORRECT_QUANTITY);
 
-    for (var i = 0; i < correctQuantity.length; i++) {
+    for (var i = 0; i < correctQuantityOfAds.length; i++) {
 
-      if (correctQuantity[i].offer) {
+      if (correctQuantityOfAds[i].offer) {
 
-        var pin = window.renderPin(correctQuantity[i]);
+        var pin = window.renderPin(correctQuantityOfAds[i]);
         pin.dataset.index = [i];
         fragment.appendChild(pin);
       }
@@ -72,20 +72,22 @@
 
   var onFormElementChange = function (evt) {
 
-    var advertsToShow;
+    if (evt.target.name === 'housing-type') {
 
-    if (evt.target.value === 'any') {
-      advertsToShow = adverts;
-    } else
+      var advertsToShow;
 
-    if (window.consts.OFFER_TYPES.includes(evt.target.value)) {
-      advertsToShow = adverts.filter(function (ad) {
-        return ad.offer.type === evt.target.value;
-      });
+      if (evt.target.value === window.consts.ANY_VALUE_OF_HOUSING_TYPE) {
+        advertsToShow = adverts;
+      } else {
+
+        advertsToShow = adverts.filter(function (ad) {
+          return ad.offer.type === evt.target.value;
+        });
+      }
+
+      removePins();
+      renderCorrectQuantityOfAds(advertsToShow);
     }
-
-    removePins();
-    renderCorrectQuantityOfAds(advertsToShow);
   };
 
   mapForm.addEventListener('change', onFormElementChange);

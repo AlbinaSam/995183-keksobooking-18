@@ -1,10 +1,8 @@
 'use strict';
 (function () {
 
-  var xhr;
-
   var prepareRequest = function (onLoad, onError) {
-    xhr = new XMLHttpRequest();
+    var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.addEventListener('load', function () {
       if (xhr.status === window.consts.SUCCESS_CODE) {
@@ -17,6 +15,12 @@
     xhr.addEventListener('error', function () {
       onError('Произошла ошибка соединения');
     });
+
+    xhr.addEventListener('timeout', function () {
+      onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
+    });
+
+    return xhr;
   };
 
 
@@ -24,11 +28,7 @@
 
     load: function (onLoad, onError) {
 
-      prepareRequest(onLoad, onError);
-
-      xhr.addEventListener('timeout', function () {
-        onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
-      });
+      var xhr = prepareRequest(onLoad, onError);
 
       xhr.timeout = window.consts.TIMEOUT;
 
@@ -38,7 +38,7 @@
 
     send: function (data, onLoad, onError) {
 
-      prepareRequest(onLoad, onError);
+      var xhr = prepareRequest(onLoad, onError);
 
       xhr.open('POST', window.consts.URL_SEND);
       xhr.send(data);
