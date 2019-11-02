@@ -77,7 +77,11 @@
 
     URL_SEND: 'https://js.dump.academy/keksobooking',
 
-    SUCCESS_CODE: 200
+    SUCCESS_CODE: 200,
+
+    CORRECT_QUANTITY: 5,
+
+    ANY_VALUE_OF_HOUSING_TYPE: 'any'
   };
 
 })();
