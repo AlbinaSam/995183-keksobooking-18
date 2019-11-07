@@ -4,17 +4,23 @@
   /* валидация комнат/гостей */
 
   var roomNumberSelect = document.querySelector('#room_number');
-  var capacitySelect = document.querySelector('#capacity');
-  capacitySelect.innerHTML = '<option value="1" selected>для 1 гостя</option>';
+
+  window.form = {
+    capacitySelect: document.querySelector('#capacity'),
+    priceField: document.querySelector('#price'),
+    typeSelect: document.querySelector('#type')
+  };
+
+  window.form.capacitySelect.innerHTML = '<option value="1" selected>для 1 гостя</option>';
 
   var onRoomNumberSelectChange = function (evt) {
     var capacityOptions = window.consts.capacityOptionTextContents[evt.target.value];
-    capacitySelect.innerHTML = '';
+    window.form.capacitySelect.innerHTML = '';
     for (var i = 0; i < capacityOptions.length; i++) {
       var capacityOption = document.createElement('option');
       capacityOption.textContent = capacityOptions[i];
       capacityOption.value = window.consts.capacityOptionValues[capacityOptions[i]];
-      capacitySelect.appendChild(capacityOption);
+      window.form.capacitySelect.appendChild(capacityOption);
     }
   };
 
@@ -42,15 +48,12 @@
 
   /* валидация типа жилья/цены  */
 
-  var typeSelect = document.querySelector('#type');
-  var priceField = document.querySelector('#price');
-
   var onTypeSelectChange = function (evt) {
     var accommodationType = window.consts.accommodationTypes[evt.target.value];
-    priceField.placeholder = accommodationType.placeholder;
-    priceField.min = accommodationType.minValue;
+    window.form.priceField.placeholder = accommodationType.placeholder;
+    window.form.priceField.min = accommodationType.minValue;
   };
 
-  typeSelect.addEventListener('change', onTypeSelectChange);
+  window.form.typeSelect.addEventListener('change', onTypeSelectChange);
 
 })();

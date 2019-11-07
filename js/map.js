@@ -43,52 +43,101 @@
 
   /* фильтр */
 
-  var adverts;
+  var adverts = [];
+
+  var advertsToShow = [];
 
   var mapForm = document.querySelector('.map__filters');
 
   var removePins = function () {
     var pins = pinsList.querySelectorAll('.map__pin:not(.map__pin--main)');
-    for (var i = 0; i < pins.length; i++) {
-      pins[i].remove();
-    }
+    pins.forEach(function (pin) {
+      pin.remove();
+    });
   };
 
   var renderCorrectQuantityOfAds = function (adsToShow) {
     var fragment = document.createDocumentFragment();
-    var correctQuantityOfAds = adsToShow.slice(0, window.consts.CORRECT_QUANTITY);
+    var ads = adsToShow.slice(0, window.consts.CORRECT_QUANTITY);
 
-    for (var i = 0; i < correctQuantityOfAds.length; i++) {
+    for (var i = 0; i < ads.length; i++) {
 
-      if (correctQuantityOfAds[i].offer) {
+      if (ads[i].offer) {
 
-        var pin = window.renderPin(correctQuantityOfAds[i]);
+        var pin = window.renderPin(ads[i]);
         pin.dataset.index = [i];
         fragment.appendChild(pin);
       }
     }
     pinsList.appendChild(fragment);
+    advertsToShow = adsToShow;
   };
 
-  var onFormElementChange = function (evt) {
 
-    if (evt.target.name === 'housing-type') {
+  var onFormElementChange = window.debounce(function () {
 
-      var advertsToShow;
+    var nodes = Array.from(mapForm.querySelectorAll('option:checked:not([value="any"]), input:checked'));
 
-      if (evt.target.value === window.consts.ANY_VALUE_OF_HOUSING_TYPE) {
-        advertsToShow = adverts;
-      } else {
+    var filterParams = nodes.map(function (node) {
+      return {
+        name: node.checked
+          ? node.value
+          : node.parentNode.name,
+        value: node.checked || node.value
+      };
+    });
 
-        advertsToShow = adverts.filter(function (ad) {
-          return ad.offer.type === evt.target.value;
-        });
-      }
+    var filterApartment = function (ad) {
+      var features = {};
 
-      removePins();
-      renderCorrectQuantityOfAds(advertsToShow);
+      var getFeature = function (adFeatures, feature) {
+        adFeatures[feature] = true;
+        return adFeatures;
+      };
+
+      var apartmentFeatures = ad.offer.features.reduce(getFeature, features);
+
+      var getPrice = function () {
+        if (ad.offer.price < window.consts.MIN_PRICE) {
+          return window.consts.LOW_PRICE;
+        } else
+
+        if (ad.offer.price > window.consts.MAX_PRICE) {
+          return window.consts.HIGH_PRICE;
+
+        } else {
+          return window.consts.MIDDLE_PRICE;
+        }
+      };
+
+
+      var apartmentParams = {
+        'housing-type': ad.offer.type,
+        'housing-price': getPrice(),
+        'housing-rooms': ad.offer.rooms.toString(),
+        'housing-guests': ad.offer.guests.toString()
+      };
+
+      var assignedParams = Object.assign({}, apartmentParams, apartmentFeatures);
+
+      return filterParams.every(function (param) {
+
+        return assignedParams[param.name] === param.value;
+
+      });
+    };
+
+    advertsToShow = adverts.filter(filterApartment);
+
+    removePins();
+
+    if (card) {
+      window.card.close(card);
     }
-  };
+
+    renderCorrectQuantityOfAds(advertsToShow);
+
+  });
 
   mapForm.addEventListener('change', onFormElementChange);
 
@@ -111,16 +160,8 @@
 
   var active = false;
 
-  /* отправка формы */
-  var form = document.querySelector('.ad-form');
-
-  var resetForm = function () {
-    form.reset();
-    mapForm.reset();
-  };
-
-  var onSuccessFormSend = function () {
-    resetForm();
+  var deactivatePage = function () {
+    resetForms();
 
     if (card) {
       window.card.close(card);
@@ -139,6 +180,23 @@
     setDisabledAttr(filterSelects);
     addressField.value = (window.consts.STARTING_PIN_X + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (window.consts.STARTING_PIN_Y + window.consts.MAIN_PIN_HEIGTH / 2);
     active = false;
+
+    var selectedType = window.form.typeSelect.value;
+    window.form.priceField.placeholder = window.consts.accommodationTypes[selectedType].placeholder;
+
+    window.form.capacitySelect.innerHTML = '<option value="1" selected>для 1 гостя</option>';
+
+  };
+
+  /* отправка формы */
+
+  var resetForms = function () {
+    adForm.reset();
+    mapForm.reset();
+  };
+
+  var onSuccessFormSend = function () {
+    deactivatePage();
 
     /* success message */
 
@@ -167,11 +225,19 @@
   };
 
 
-  form.addEventListener('submit', function (evt) {
+  adForm.addEventListener('submit', function (evt) {
     evt.preventDefault();
-    window.backend.send(new FormData(form), onSuccessFormSend, window.onError);
+    window.backend.send(new FormData(adForm), onSuccessFormSend, window.onError);
   });
 
+  var resetButton = adForm.querySelector('.ad-form__reset');
+
+  var onResetButtonClick = function (evt) {
+    evt.preventDefault();
+    deactivatePage();
+  };
+
+  resetButton.addEventListener('click', onResetButtonClick);
 
   mainPin.addEventListener('mousedown', function (evt) {
 
@@ -283,7 +349,7 @@
     if (card) {
       window.card.close(card);
     }
-    card = window.card.render(adverts[pinIndex]);
+    card = window.card.render(advertsToShow[pinIndex]);
     mapContainer.insertBefore(card, mapFilters);
     document.addEventListener('keydown', window.onEscKeydown);
   };
