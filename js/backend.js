@@ -20,6 +20,8 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
+    xhr.timeout = window.consts.TIMEOUT;
+
     return xhr;
   };
 
@@ -29,8 +31,6 @@
     load: function (onLoad, onError) {
 
       var xhr = prepareRequest(onLoad, onError);
-
-      xhr.timeout = window.consts.TIMEOUT;
 
       xhr.open('GET', window.consts.URL_LOAD);
       xhr.send();

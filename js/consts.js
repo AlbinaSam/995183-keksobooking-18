@@ -81,7 +81,17 @@
 
     CORRECT_QUANTITY: 5,
 
-    ANY_VALUE_OF_HOUSING_TYPE: 'any'
+    MAX_PRICE: 50000,
+
+    MIN_PRICE: 10000,
+
+    LOW_PRICE: 'low',
+
+    HIGH_PRICE: 'high',
+
+    MIDDLE_PRICE: 'middle',
+
+    DEBOUNCE_INTERVAL: 500
   };
 
 })();
