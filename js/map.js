@@ -60,19 +60,31 @@
     var fragment = document.createDocumentFragment();
     var ads = adsToShow.slice(0, window.consts.CORRECT_QUANTITY);
 
-    for (var i = 0; i < ads.length; i++) {
-
-      if (ads[i].offer) {
-
-        var pin = window.renderPin(ads[i]);
-        pin.dataset.index = [i];
+    ads.forEach(function (ad, index) {
+      if (ad.offer) {
+        var pin = window.renderPin(ad);
+        pin.dataset.index = index;
         fragment.appendChild(pin);
       }
-    }
+    });
+
     pinsList.appendChild(fragment);
     advertsToShow = adsToShow;
   };
 
+
+  var getPrice = function (price) {
+    if (price < window.consts.MIN_PRICE) {
+      return window.consts.LOW_PRICE;
+    } else
+
+    if (price > window.consts.MAX_PRICE) {
+      return window.consts.HIGH_PRICE;
+
+    } else {
+      return window.consts.MIDDLE_PRICE;
+    }
+  };
 
   var onFormElementChange = window.debounce(function () {
 
@@ -88,32 +100,17 @@
     });
 
     var filterApartment = function (ad) {
-      var features = {};
 
       var getFeature = function (adFeatures, feature) {
         adFeatures[feature] = true;
         return adFeatures;
       };
 
-      var apartmentFeatures = ad.offer.features.reduce(getFeature, features);
-
-      var getPrice = function () {
-        if (ad.offer.price < window.consts.MIN_PRICE) {
-          return window.consts.LOW_PRICE;
-        } else
-
-        if (ad.offer.price > window.consts.MAX_PRICE) {
-          return window.consts.HIGH_PRICE;
-
-        } else {
-          return window.consts.MIDDLE_PRICE;
-        }
-      };
-
+      var apartmentFeatures = ad.offer.features.reduce(getFeature, {});
 
       var apartmentParams = {
         'housing-type': ad.offer.type,
-        'housing-price': getPrice(),
+        'housing-price': getPrice(ad.offer.price),
         'housing-rooms': ad.offer.rooms.toString(),
         'housing-guests': ad.offer.guests.toString()
       };
