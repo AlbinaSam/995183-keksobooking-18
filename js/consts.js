@@ -93,7 +93,9 @@
 
     DEBOUNCE_INTERVAL: 500,
 
-    FILE_TYPES: ['gif', 'jpg', 'jpeg', 'png']
+    FILE_TYPES: ['gif', 'jpg', 'jpeg', 'png'],
+
+    DEFAULT_CAPACITY_VALUE: '<option value="1" selected>для 1 гостя</option>'
   };
 
 })();

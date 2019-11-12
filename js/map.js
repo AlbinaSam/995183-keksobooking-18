@@ -181,7 +181,17 @@
     var selectedType = window.form.typeSelect.value;
     window.form.priceField.placeholder = window.consts.accommodationTypes[selectedType].placeholder;
 
-    window.form.capacitySelect.innerHTML = '<option value="1" selected>для 1 гостя</option>';
+    window.form.capacitySelect.innerHTML = window.consts.DEFAULT_CAPACITY_VALUE;
+
+    window.photoLoading.avatarPreview.src = 'img/muffin-grey.svg';
+
+    var loadedPhotos = window.photoLoading.loadedPhotosContainer.querySelectorAll('.ad-form__photo');
+
+    if (loadedPhotos) {
+      loadedPhotos.forEach(function (element) {
+        element.remove();
+      });
+    }
 
   };
 
@@ -194,6 +204,7 @@
 
   var onSuccessFormSend = function () {
     deactivatePage();
+
 
     /* success message */
 
@@ -328,6 +339,7 @@
   var mapFilters = document.querySelector('.map__filters-container');
   var card = null;
 
+
   window.onEscKeydown = function (evt) {
     if (evt.keyCode === window.consts.ESC_KEYCODE) {
       window.card.close(card);
@@ -335,13 +347,14 @@
   };
 
   var onMapClick = function (evt) {
-    var clickedPin = evt.target.closest('button.map__pin:not(.map__pin--main)');
+    window.map.clickedPin = evt.target.closest('button.map__pin:not(.map__pin--main)');
 
-    if (!clickedPin) {
+
+    if (!window.map.clickedPin) {
       return;
     }
 
-    var pinIndex = clickedPin.dataset.index;
+    var pinIndex = window.map.clickedPin.dataset.index;
 
     if (card) {
       window.card.close(card);
@@ -352,5 +365,10 @@
   };
 
   mapContainer.addEventListener('click', onMapClick);
+
+
+  window.map = {
+    clickedPin: null
+  };
 
 })();

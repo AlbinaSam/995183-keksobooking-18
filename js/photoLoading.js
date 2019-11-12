@@ -4,7 +4,12 @@
   var avatarFileChooser = document.querySelector('.ad-form__field input[type=file]');
   var avatarPreview = document.querySelector('.ad-form-header__preview img');
   var adPhotoFileChooser = document.querySelector('.ad-form__upload input[type=file]');
-  var adFormPhoto = document.querySelector('.ad-form__photo');
+  var loadedPhotosContainer = document.querySelector('.ad-form__photo-container');
+
+  window.photoLoading = {
+    avatarPreview: avatarPreview,
+    loadedPhotosContainer: loadedPhotosContainer
+  };
 
   var getMatches = function (file) {
     var fileName = file.name.toLowerCase();
@@ -15,8 +20,24 @@
     return matches;
   };
 
-  avatarFileChooser.addEventListener('change', function () {
-    var file = avatarFileChooser.files[0];
+  var setAvatarPreviewSrc = function (evt) {
+    avatarPreview.src = evt.target.result;
+  };
+
+  var createPhotoPreview = function (evt) {
+    var photoWrapper = document.createElement('div');
+    photoWrapper.classList.add('ad-form__photo');
+    var adPhotoPreview = document.createElement('img');
+    adPhotoPreview.src = evt.target.result;
+    adPhotoPreview.alt = 'Фотография жилья';
+    adPhotoPreview.width = 70;
+    adPhotoPreview.height = 70;
+    photoWrapper.appendChild(adPhotoPreview);
+    loadedPhotosContainer.appendChild(photoWrapper);
+  };
+
+  var readFile = function (file, cb) {
+
     if (file) {
       var matches = getMatches(file);
 
@@ -24,38 +45,22 @@
 
         var reader = new FileReader();
 
-        reader.addEventListener('load', function () {
-          avatarPreview.src = reader.result;
-        });
+        reader.addEventListener('load', cb);
 
         reader.readAsDataURL(file);
       }
     }
+  };
+
+  avatarFileChooser.addEventListener('change', function () {
+    var file = avatarFileChooser.files[0];
+    readFile(file, setAvatarPreviewSrc);
   });
 
 
   adPhotoFileChooser.addEventListener('change', function () {
     var file = adPhotoFileChooser.files[0];
-
-    if (file) {
-      var matches = getMatches(file);
-
-      if (matches) {
-
-        var reader = new FileReader();
-
-        reader.addEventListener('load', function () {
-          var adPhotoPreview = document.createElement('img');
-          adPhotoPreview.src = reader.result;
-          adPhotoPreview.alt = 'Фотография жилья';
-          adPhotoPreview.width = 70;
-          adPhotoPreview.height = 70;
-          adFormPhoto.appendChild(adPhotoPreview);
-        });
-
-        reader.readAsDataURL(file);
-      }
-    }
+    readFile(file, createPhotoPreview);
   });
 
 })();

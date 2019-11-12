@@ -2,9 +2,10 @@
 (function () {
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 
-
   window.card = {
     render: function (adObject) {
+
+      window.map.clickedPin.classList.add('map__pin--active');
 
       var card = cardTemplate.cloneNode(true);
 
@@ -81,6 +82,10 @@
 
     close: function (card) {
       card.remove();
+      var currentPin = document.querySelector('.map__pin--active');
+      if (currentPin) {
+        currentPin.classList.remove('map__pin--active');
+      }
       document.removeEventListener('keydown', window.onEscKeydown);
     }
   };
