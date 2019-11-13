@@ -1,18 +1,24 @@
 'use strict';
 (function () {
+  var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+
   window.onError = function (errorMessage) {
-    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
     var error = errorTemplate.cloneNode(true);
+
     error.querySelector('.error__message').textContent = errorMessage;
 
     var errorMessageClose = function () {
       error.remove();
-      document.removeEventListener('click', onErrorMapClick);
-      errorButton.removeEventListener('click', onErrorMapClick);
+      error.removeEventListener('click', onErrorOverlayClick);
+      errorButton.removeEventListener('click', onErrorButtonClick);
       document.removeEventListener('keydown', onErrorEscKeydown);
     };
 
-    var onErrorMapClick = function () {
+    var onErrorButtonClick = function () {
+      errorMessageClose();
+    };
+
+    var onErrorOverlayClick = function () {
       errorMessageClose();
     };
 
@@ -24,8 +30,9 @@
 
     var errorButton = error.querySelector('.error__button');
 
-    errorButton.addEventListener('click', onErrorMapClick);
-    document.addEventListener('click', onErrorMapClick);
+
+    errorButton.addEventListener('click', onErrorButtonClick);
+    error.addEventListener('click', onErrorOverlayClick);
     document.addEventListener('keydown', onErrorEscKeydown);
 
     document.querySelector('main').appendChild(error);

@@ -2,9 +2,10 @@
 (function () {
   var cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 
-
   window.card = {
     render: function (adObject) {
+
+      window.map.clickedPin.classList.add('map__pin--active');
 
       var card = cardTemplate.cloneNode(true);
 
@@ -30,13 +31,13 @@
         featuresList.remove();
       } else {
         featuresList.innerHTML = '';
-        for (var i = 0; i < features.length; i++) {
-          var featureElement = document.createElement('li');
-          featureElement.classList.add('popup__feature', 'popup__feature--' + features[i]);
-          featuresList.appendChild(featureElement);
-        }
-      }
 
+        features.forEach(function (element) {
+          var featureElement = document.createElement('li');
+          featureElement.classList.add('popup__feature', 'popup__feature--' + element);
+          featuresList.appendChild(featureElement);
+        });
+      }
 
       /* выводим описание */
 
@@ -57,16 +58,18 @@
         imgList.remove();
       } else {
         imgList.innerHTML = '';
-        for (var j = 0; j < photos.length; j++) {
+
+        photos.forEach(function (element) {
           var img = document.createElement('img');
-          img.src = photos[j];
+          img.src = element;
           img.classList.add('popup__photo');
           img.width = 45;
           img.height = 40;
           img.alt = 'Фотография жилья';
           imgList.appendChild(img);
-        }
+        });
       }
+
 
       card.querySelector('.popup__avatar').src = adObject.author.avatar;
 
@@ -81,6 +84,12 @@
 
     close: function (card) {
       card.remove();
+
+      var currentPin = document.querySelector('.map__pin--active');
+
+      if (currentPin) {
+        currentPin.classList.remove('map__pin--active');
+      }
       document.removeEventListener('keydown', window.onEscKeydown);
     }
   };

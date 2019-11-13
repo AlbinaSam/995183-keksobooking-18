@@ -7,18 +7,6 @@
 
     ESC_KEYCODE: 27,
 
-    ADS_NUMBER: 8,
-
-    OFFER_TYPES: ['palace', 'flat', 'house', 'bungalo'],
-
-    OFFER_TIMES: ['12:00', '13:00', '14:00'],
-
-    OFFER_FEATURES: ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'],
-
-    OFFER_PHOTOS: ['http://o0.github.io/assets/images/tokyo/hotel1.jpg',
-      'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
-      'http://o0.github.io/assets/images/tokyo/hotel3.jpg'],
-
     MIN_X_VALUE: 0,
 
     MAX_X_VALUE: 1200,
@@ -91,7 +79,13 @@
 
     MIDDLE_PRICE: 'middle',
 
-    DEBOUNCE_INTERVAL: 500
+    DEBOUNCE_INTERVAL: 500,
+
+    FILE_TYPES: ['gif', 'jpg', 'jpeg', 'png'],
+
+    DEFAULT_CAPACITY_VALUE: '<option value="1" selected>для 1 гостя</option>',
+
+    DEFAULT_AVATAR: 'img/muffin-grey.svg'
   };
 
 })();
