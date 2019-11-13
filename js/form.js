@@ -11,17 +11,19 @@
     typeSelect: document.querySelector('#type')
   };
 
-  window.form.capacitySelect.innerHTML = '<option value="1" selected>для 1 гостя</option>';
+  window.form.capacitySelect.innerHTML = window.consts.DEFAULT_CAPACITY_VALUE;
 
   var onRoomNumberSelectChange = function (evt) {
     var capacityOptions = window.consts.capacityOptionTextContents[evt.target.value];
     window.form.capacitySelect.innerHTML = '';
-    for (var i = 0; i < capacityOptions.length; i++) {
+
+    capacityOptions.forEach(function (element) {
       var capacityOption = document.createElement('option');
-      capacityOption.textContent = capacityOptions[i];
-      capacityOption.value = window.consts.capacityOptionValues[capacityOptions[i]];
+      capacityOption.textContent = element;
+      capacityOption.value = window.consts.capacityOptionValues[element];
       window.form.capacitySelect.appendChild(capacityOption);
-    }
+    });
+
   };
 
   roomNumberSelect.addEventListener('change', onRoomNumberSelectChange);

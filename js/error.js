@@ -1,8 +1,9 @@
 'use strict';
 (function () {
+  var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+
   window.onError = function (errorMessage) {
-    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-    var error = errorTemplate.cloneNode(true); /* или так и назвать errorOverlay? или errorBlock может назвать и обработчик переименовать в onErrorBlockClick ? */
+    var error = errorTemplate.cloneNode(true);
 
     error.querySelector('.error__message').textContent = errorMessage;
 

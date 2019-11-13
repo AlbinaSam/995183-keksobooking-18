@@ -3,29 +3,25 @@
 
   /* добавляем атрибут disabled */
 
-  var adInputs = document.querySelectorAll('.ad-form input');
-  var adSelects = document.querySelectorAll('.ad-form select');
-  var filterInputs = document.querySelectorAll('.map__filters input');
-  var filterSelects = document.querySelectorAll('.map__filters select');
+  var adFormElements = document.querySelectorAll('.ad-form input, .ad-form select, .ad-form textarea');
+  var filterFormElements = document.querySelectorAll('.map__filters input, .map__filters select');
 
   var setDisabledAttr = function (fieldsCollection) {
-    for (var i = 0; i < fieldsCollection.length; i++) {
-      var field = fieldsCollection[i];
+    fieldsCollection.forEach(function (element) {
+      var field = element;
       field.setAttribute('disabled', 'disabled');
-    }
+    });
   };
 
   var removeDisableAtrr = function (fieldsCollection) {
-    for (var i = 0; i < fieldsCollection.length; i++) {
-      var field = fieldsCollection[i];
+    fieldsCollection.forEach(function (element) {
+      var field = element;
       field.removeAttribute('disabled');
-    }
+    });
   };
 
-  setDisabledAttr(adInputs);
-  setDisabledAttr(adSelects);
-  setDisabledAttr(filterInputs);
-  setDisabledAttr(filterSelects);
+  setDisabledAttr(adFormElements);
+  setDisabledAttr(filterFormElements);
 
   /* активируем страницу */
 
@@ -34,9 +30,13 @@
   var adForm = document.querySelector('.ad-form');
   var pinsList = document.querySelector('.map__pins');
 
-  addressField.value = (window.consts.STARTING_PIN_X + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (window.consts.STARTING_PIN_Y + window.consts.MAIN_PIN_HEIGTH / 2);
+  var fillInactiveAddressField = function () {
+    addressField.value = (window.consts.STARTING_PIN_X + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (window.consts.STARTING_PIN_Y + window.consts.MAIN_PIN_HEIGTH / 2);
+  };
 
-  var fillAddressField = function (x, y) {
+  fillInactiveAddressField();
+
+  var fillActiveAddressField = function (x, y) {
     addressField.value = (x + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (y + window.consts.MAIN_PIN_HEIGTH + window.consts.PIN_TIP_HEIGHT);
   };
 
@@ -70,8 +70,6 @@
 
     pinsList.appendChild(fragment);
     advertsToShow = adsToShow;
-    removeDisableAtrr(filterInputs);
-    removeDisableAtrr(filterSelects);
   };
 
 
@@ -143,15 +141,15 @@
   var onSuccessDataLoad = function (ads) {
     adverts = ads;
     renderCorrectQuantityOfAds(adverts);
+    removeDisableAtrr(filterFormElements);
   };
 
   var activatePage = function () {
     mapContainer.classList.remove('map--faded');
     adForm.classList.remove('ad-form--disabled');
-    removeDisableAtrr(adInputs);
-    removeDisableAtrr(adSelects);
+    removeDisableAtrr(adFormElements);
     window.backend.load(onSuccessDataLoad, window.onError);
-    fillAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y);
+    fillActiveAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y);
     active = true;
   };
 
@@ -171,10 +169,8 @@
     mainPin.style.top = window.consts.STARTING_PIN_Y + 'px';
     mapContainer.classList.add('map--faded');
     adForm.classList.add('ad-form--disabled');
-    setDisabledAttr(adInputs);
-    setDisabledAttr(adSelects);
-    setDisabledAttr(filterInputs);
-    setDisabledAttr(filterSelects);
+    setDisabledAttr(adFormElements);
+    setDisabledAttr(filterFormElements);
     addressField.value = (window.consts.STARTING_PIN_X + window.consts.MAIN_PIN_WIDTH / 2) + ', ' + (window.consts.STARTING_PIN_Y + window.consts.MAIN_PIN_HEIGTH / 2);
     active = false;
 
@@ -183,7 +179,7 @@
 
     window.form.capacitySelect.innerHTML = window.consts.DEFAULT_CAPACITY_VALUE;
 
-    window.photoLoading.avatarPreview.src = 'img/muffin-grey.svg';
+    window.photoLoading.avatarPreview.src = window.consts.DEFAULT_AVATAR;
 
     var loadedPhotos = window.photoLoading.loadedPhotosContainer.querySelectorAll('.ad-form__photo');
 
@@ -202,15 +198,16 @@
     mapForm.reset();
   };
 
+  var successTemplate = document.querySelector('#success').content.querySelector('.success');
+  var mainBlock = document.querySelector('main');
+
   var onSuccessFormSend = function () {
     deactivatePage();
 
-
     /* success message */
 
-    var successTemplate = document.querySelector('#success').content.querySelector('.success');
     var success = successTemplate.cloneNode(true);
-    document.querySelector('main').appendChild(success);
+    mainBlock.appendChild(success);
 
     var successMessageClose = function () {
       success.remove();
@@ -307,14 +304,14 @@
       mainPin.style.top = newCoords.y + 'px';
       mainPin.style.left = newCoords.x + 'px';
 
-      fillAddressField(newCoords.x, newCoords.y);
+      fillActiveAddressField(newCoords.x, newCoords.y);
     };
 
     var onMouseUp = function (upEvt) {
       upEvt.preventDefault();
 
       if (dragged) {
-        fillAddressField(newCoords.x, newCoords.y);
+        fillActiveAddressField(newCoords.x, newCoords.y);
       }
 
       document.removeEventListener('mousemove', onMouseMove);
