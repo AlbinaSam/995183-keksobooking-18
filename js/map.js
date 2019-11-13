@@ -70,6 +70,8 @@
 
     pinsList.appendChild(fragment);
     advertsToShow = adsToShow;
+    removeDisableAtrr(filterInputs);
+    removeDisableAtrr(filterSelects);
   };
 
 
@@ -148,8 +150,6 @@
     adForm.classList.remove('ad-form--disabled');
     removeDisableAtrr(adInputs);
     removeDisableAtrr(adSelects);
-    removeDisableAtrr(filterInputs);
-    removeDisableAtrr(filterSelects);
     window.backend.load(onSuccessDataLoad, window.onError);
     fillAddressField(window.consts.STARTING_PIN_X, window.consts.STARTING_PIN_Y);
     active = true;
