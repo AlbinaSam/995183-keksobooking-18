@@ -14,13 +14,13 @@
   window.form.capacitySelect.innerHTML = window.consts.DEFAULT_CAPACITY_VALUE;
 
   var onRoomNumberSelectChange = function (evt) {
-    var capacityOptions = window.consts.capacityOptionTextContents[evt.target.value];
+    var capacityOptions = window.consts.capacityOptionContents[evt.target.value];
     window.form.capacitySelect.innerHTML = '';
 
     capacityOptions.forEach(function (element) {
       var capacityOption = document.createElement('option');
-      capacityOption.textContent = element;
-      capacityOption.value = window.consts.capacityOptionValues[element];
+      capacityOption.textContent = element.text;
+      capacityOption.value = element.value;
       window.form.capacitySelect.appendChild(capacityOption);
     });
 

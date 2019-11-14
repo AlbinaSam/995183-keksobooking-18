@@ -60,13 +60,13 @@
     var fragment = document.createDocumentFragment();
     var ads = adsToShow.slice(0, window.consts.CORRECT_QUANTITY);
 
-    ads.forEach(function (ad, index) {
-      if (ad.offer) {
-        var pin = window.renderPin(ad);
-        pin.dataset.index = index;
+    for (var i = 0; i < ads.length; i++) {
+      if (ads[i].offer) {
+        var pin = window.renderPin(ads[i]);
+        pin.dataset.index = [i];
         fragment.appendChild(pin);
       }
-    });
+    }
 
     pinsList.appendChild(fragment);
     advertsToShow = adsToShow;
@@ -81,9 +81,8 @@
     if (price > window.consts.MAX_PRICE) {
       return window.consts.HIGH_PRICE;
 
-    } else {
-      return window.consts.MIDDLE_PRICE;
     }
+    return window.consts.MIDDLE_PRICE;
   };
 
   var onFormElementChange = window.debounce(function () {
